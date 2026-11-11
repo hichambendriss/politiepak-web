@@ -277,6 +277,20 @@
         <button class="btn effect" onclick="setMode(13)">Golf 〰️</button>
         <button class="btn effect" onclick="setMode(14)">Puls ⭕</button>
         <button class="btn effect" onclick="setMode(15)">Custom ✨</button>
+        <button class="btn police" onclick="setMode(18)">Tripel Strobe 🚨</button>
+        <button class="btn carnival" onclick="setMode(19)">Confetti 🎉</button>
+        <button class="btn effect" onclick="setMode(20)">Vuur / Vlammen 🔥</button>
+        <button class="btn effect" onclick="setMode(21)">Cylon Scanner 🔴</button>
+        <button class="btn effect" onclick="setMode(22)">Matrix Regen 🟢</button>
+    </div>
+
+    <div class="controls-card" style="border: 1px solid var(--accent); margin-top: 15px;">
+        <div class="section-title" style="margin-left:0; margin-bottom: 6px;">💾 Standaard Opstartstand</div>
+        <p style="font-size: 0.85em; color: #aaa; margin-top: 0; margin-bottom: 12px;">Sla huidige modus, snelheid en helderheid op in flash chip. Pak start voortaan direct zo op!</p>
+        <button class="btn" onclick="saveStartupDefaults()" style="width: 100%; background: #2e7d32; color: white; font-weight: bold; justify-content: center; padding: 12px;">
+            💾 Huidige Stand Opslaan als Standaard
+        </button>
+        <div id="saveFeedback" style="display:none; color: #00C851; font-size: 0.9em; text-align: center; margin-top: 8px; font-weight: bold;">✅ Opgeslagen in permanent flash geheugen!</div>
     </div>
 
     <div class="controls-card">
@@ -580,6 +594,15 @@
         sendCommand(1, [16]); // MODE_KIELEGAT / MODE_BREDA
     }
     function setBreda() { setKielegat(); }
+
+    function saveStartupDefaults() {
+        sendCommand(9, [1]);
+        const fb = document.getElementById('saveFeedback');
+        if (fb) {
+            fb.style.display = 'block';
+            setTimeout(() => { fb.style.display = 'none'; }, 3000);
+        }
+    }
     
     let currentPotMode = 0;
 
