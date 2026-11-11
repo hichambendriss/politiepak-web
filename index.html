@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Politiepack V3.1</title>
+    <style>
+        :root {
+            --bg: #121212;
+            --card: #1E1E1E;
+            --text: #E0E0E0;
+            --accent: #FFD700;
+            --btn-bg: #2D2D2D;
+            --btn-hover: #3D3D3D;
+            --success: #00C851;
+            --danger: #ff4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Header & Connect */
+    .header-card {
+        background: var(--card);
+        padding: 15px;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        border-bottom: 2px solid var(--accent);
+    }
+    
+    .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .connect-row {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+    
+    select, button.connect-btn {
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #444;
+        background: #2D2D2D;
+        color: white;
+        font-size: 0.9rem;
+    }
+    
+    button.connect-btn {
+        background: #007bff;
+        cursor: pointer;
+        flex: 1;
+    }
+        .subtitle { font-size: 0.8rem; opacity: 0.7; margin: 0; }
+
+        .status-dot {
+            height: 10px; width: 10px; border-radius: 50%;
+            background: var(--danger); display: inline-block; margin-right: 5px;
+        }
+        .status-dot.connected { background: var(--success); box-shadow: 0 0 8px var(--success); }
+
+        /* Mode Sections */
+        .section-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 10px 0 5px 5px;
+            opacity: 0.6;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--btn-bg);
+            color: var(--text);
+            border: none;
+            padding: 15px 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .btn:active { transform: scale(0.98); }
+        .btn:hover { background: var(--btn-hover); }
+
+        /* Color Indicators (Left Border) */
+        .btn::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: #555;
+        }
+
+        .btn.police::before { background: linear-gradient(to bottom, #ff0000, #0000ff); }
+        .btn.party::before { background: linear-gradient(to bottom, #ff00ff, #00ffff); }
+        .btn.carnival::before { background: linear-gradient(to bottom, #ff0000, #ffff00, #00ff00); }
+        .btn.tilburg::before { background: linear-gradient(to bottom, #ffa500, #00ff00); }
+        .btn.limburg::before { background: linear-gradient(to bottom, #ff0000, #ffff00, #008000); }
+        .btn.brabant::before { background: linear-gradient(to bottom, #ff0000, #ffffff); }
+        .btn.rainbow::before { background: linear-gradient(to bottom, red, orange, yellow, green, blue, purple); }
+        .btn.effect::before { background: var(--accent); }
+
+        .btn-connect {
+            background: #2196F3;
+            color: white;
+            text-align: center;
+            justify-content: center;
+            padding: 10px 20px;
+            width: auto;
+        }
+        
+        .btn-off {
+            background: #222;
+            color: #888;
+            border: 1px solid #444;
+            justify-content: center;
+            text-align: center;
+        }
+        .btn-off::before { display: none; }
+
+        /* Controls Card */
+        .controls-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+
+        .slider-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; }
+
+        input[type=range] {
+            width: 100%; height: 6px; border-radius: 3px;
+            background: #444; outline: none; -webkit-appearance: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 18px; height: 18px;
+            border-radius: 50%; background: var(--accent); cursor: pointer;
+        }
+
+        .color-row { display: flex; gap: 10px; margin-top: 10px; }
+        input[type=color] {
+            flex: 1; height: 40px; border: none; border-radius: 6px;
+            background: none; cursor: pointer; padding: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Connection Header -->
+    <div class="header-card">
+        <div class="header-row">
+            <div>
+                <h1>Politiepack V3.1</h1>
+                <p class="subtitle" id="statusText">Niet Verbonden</p>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <span class="status-dot" id="statusDot"></span>
+            </div>
+        </div>
+        
+        <div class="connect-row">
+             <select id="deviceSelect"></select>
+             <button class="connect-btn" id="btnConnect">Verbinden</button>
+             <button class="connect-btn" id="btnDisconnect" style="background: #ff4444; display: none;">Verbreken</button>
+        </div>
+         <button class="connect-btn" id="btnNew" style="width: 100%; background: #444; margin-top: 5px;">+ Nieuw Apparaat</button>
+    </div>
+
+    <div class="section-title">Basis Modi</div>
+    <div class="grid">
+        <button class="btn police" onclick="setMode(1)">Politie 🚨</button>
+        <button class="btn party" onclick="setMode(2)">Party 🎉</button>
+        <button class="btn rainbow" onclick="setMode(5)">Regenboog 🌈</button>
+        <button class="btn off" onclick="setMode(0)" style="border-left: 4px solid #444;">UIT 🌑</button>
+    </div>
+
+    <div class="section-title">Regio's</div>
+    <div class="grid">
+        <button class="btn carnival" onclick="setMode(3)">Carnaval 🎭</button>
+        <button class="btn brabant" onclick="setMode(9)">Brabant ❤️🤍</button>
+        <button class="btn tilburg" onclick="setMode(4)">Tilburg 🧡💚</button>
+        <button class="btn limburg" onclick="setMode(8)">Limburg 🦁</button>
+    </div>
+
+    <div class="section-title">Kleur Combinaties</div>
+    <div class="grid">
+        <button class="btn effect" onclick="setMode(10)">Standaard Custom</button>
+        <button class="btn effect" onclick="setColor2('#ff2d95','#00b7ff')">Neon Roze/Blauw</button>
+        <button class="btn effect" onclick="setColor2('#00ffd5','#7b00ff')">Aqua/Paars</button>
+        <button class="btn effect" onclick="setColor2('#ff7a00','#7c00ff')">Oranje/Paars</button>
+        <button class="btn effect" onclick="setColor2('#a4ff00','#0066ff')">Lime/Blauw</button>
+        <button class="btn effect" onclick="setColor2('#ffffff','#007bff')">Wit/Blauw</button>
+        <button class="btn effect" onclick="setColor2('#ff0000','#00ffff')">Rood/Cyaan</button>
+        <button class="btn effect" onclick="setColor2('#ffea00','#ff00b8')">Geel/Roze</button>
+    </div>
+
+    <div class="section-title">Carnaval Steden</div>
+    <div class="grid">
+        <button class="btn carnival" onclick="setColor3('#e10600','#ffffff','#f8d000')">Oeteldonk</button>
+        <button class="btn carnival" onclick="setColor3('#ff8a00','#00a651','#ffffff')">Kruikenstad</button>
+        <button class="btn carnival" onclick="setColor3('#ff0000','#ffffff','#f8d000')">Lampegat</button>
+        <button class="btn carnival" onclick="setColor3('#ff0000','#ffcc00','#000000')">Kielegat</button>
+    </div>
+
+    <div class="section-title">Effecten (Gebruikt Kleuren)</div>
+    <div class="grid">
+        <button class="btn effect" onclick="setMode(6)">Knipper Solo ⚡</button>
+        <button class="btn effect" onclick="setMode(10)">Standaard ↔️</button>
+        <button class="btn effect" onclick="setMode(11)">Fade L/R �</button>
+        <button class="btn effect" onclick="setMode(7)">Draaien 🔄</button>
+        <button class="btn effect" onclick="setMode(12)">Radar 📡</button>
+        <button class="btn effect" onclick="setMode(13)">Golf 〰️</button>
+        <button class="btn effect" onclick="setMode(14)">Puls ⭕</button>
+        <button class="btn effect" onclick="setMode(15)">Custom ✨</button>
+    </div>
+
+    <div class="controls-card">
+        <div class="section-title" style="margin-left:0; margin-bottom: 10px;">Statisch Licht</div>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center;">
+            <input type="color" id="staticColor" value="#ff0000" style="flex: 1; height: 45px;">
+            <button class="btn" onclick="setStaticMode()" style="flex: 1; justify-content: center; background: #333;">
+                Aan
+            </button>
+        </div>
+
+        <div class="slider-group">
+            <div style="display: flex; justify-content: space-between;">
+                <label>Snelheid Effecten</label>
+                <input type="number" id="speedNum" min="0" max="100" value="50" style="width: 50px; background: #333; color: white; border: none; border-radius: 4px; padding: 2px 5px;" onchange="updateSlider('speed', this.value)">
+            </div>
+            <input type="range" id="speedSlider" min="0" max="100" value="50" oninput="updateNum('speed', this.value)" onchange="setSpeed(this.value)">
+        </div>
+
+        <div style="margin-bottom: 20px; background: #2D2D2D; padding: 10px; border-radius: 8px;">
+            <label style="margin-bottom: 10px; display: block;">Potentiometer Functie</label>
+            <div style="display: flex; gap: 10px;">
+                <label style="font-weight: normal; display: flex; align-items: center; cursor: pointer;">
+                    <input type="radio" name="potMode" value="0" checked onchange="setPotMode(0)" style="margin-right: 8px;">
+                    Helderheid
+                </label>
+                <label style="font-weight: normal; display: flex; align-items: center; cursor: pointer;">
+                    <input type="radio" name="potMode" value="1" onchange="setPotMode(1)" style="margin-right: 8px;">
+                    Snelheid
+                </label>
+            </div>
+        </div>
+
+        <div class="slider-group">
+            <div style="display: flex; justify-content: space-between;">
+                <label>Helderheid</label>
+                <input type="number" id="brightnessNum" min="0" max="255" value="128" style="width: 50px; background: #333; color: white; border: none; border-radius: 4px; padding: 2px 5px;" onchange="updateSlider('brightness', this.value)">
+            </div>
+            <input type="range" id="brightnessSlider" min="0" max="255" value="128" oninput="updateNum('brightness', this.value)" onchange="setBrightness(this.value)">
+        </div>
+
+        <label>Eigen Kleuren (Effecten)</label>
+        <div class="color-row">
+            <input type="color" id="color1" value="#ff0000" onchange="updateColors()">
+            <input type="color" id="color2" value="#0000ff" onchange="updateColors()">
+            <input type="color" id="color3" value="#00ff00" onchange="updateColors()">
+        </div>
+        <div style="margin-top: 8px;">
+            <label style="font-weight: normal; display: flex; align-items: center; cursor: pointer;">
+                <input type="checkbox" id="use3" onchange="updateColors()" style="margin-right: 8px;">
+                3 kleuren
+            </label>
+        </div>
+        <p style="font-size: 0.8rem; opacity: 0.6; margin-top: 5px;">
+            Deze kleuren worden gebruikt bij alle 'Effecten' modi hierboven.
+        </p>
+    </div>
+</div>
+
+<script>
+    const SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
+    const CHAR_UUID = "19b10002-e8f2-537e-4f6c-d104768a1214";
+    let device, server, service, characteristic;
+
+    const btnConnect = document.getElementById('btnConnect');
+    const btnDisconnect = document.getElementById('btnDisconnect');
+    const btnNew = document.getElementById('btnNew');
+    const deviceSelect = document.getElementById('deviceSelect');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+
+    let deviceHistory = JSON.parse(localStorage.getItem('ble_devices') || '[]');
+    updateDeviceDropdown();
+
+    window.addEventListener('load', () => {
+        initDevices();
+    });
+
+    function updateDeviceDropdown() {
+        deviceSelect.innerHTML = '<option value="">-- Kies apparaat --</option>';
+        deviceHistory.forEach(dev => {
+            const opt = document.createElement('option');
+            opt.value = dev.id;
+            opt.text = dev.name || dev.id;
+            deviceSelect.appendChild(opt);
+        });
+    }
+
+    function saveDevice(dev) {
+        deviceHistory = deviceHistory.filter(d => d.id !== dev.id);
+        deviceHistory.unshift({ id: dev.id, name: dev.name });
+        if (deviceHistory.length > 5) deviceHistory.pop();
+        localStorage.setItem('ble_devices', JSON.stringify(deviceHistory));
+        updateDeviceDropdown();
+        deviceSelect.value = dev.id;
+    }
+
+    async function initDevices() {
+        if (navigator.bluetooth.getDevices) {
+            const devices = await navigator.bluetooth.getDevices();
+            if (devices.length > 0) {
+                let target = null;
+                if (deviceHistory.length > 0) {
+                    target = devices.find(d => d.id === deviceHistory[0].id);
+                }
+                if (!target) {
+                    target = devices[0];
+                }
+                if (target) {
+                    deviceSelect.value = target.id;
+                    await connectToDevice(target);
+                }
+            }
+        }
+    }
+
+    async function connectToDevice(deviceObj) {
+        try {
+            device = deviceObj;
+            device.addEventListener('gattserverdisconnected', () => updateStatus(false));
+            
+            server = await device.gatt.connect();
+            service = await server.getPrimaryService(SERVICE_UUID);
+            characteristic = await service.getCharacteristic(CHAR_UUID);
+            
+            await characteristic.startNotifications();
+            characteristic.addEventListener('characteristicvaluechanged', handleNotifications);
+            
+            saveDevice(device);
+            updateStatus(true);
+        } catch (error) {
+            console.error(error);
+            alert("Verbinding mislukt: " + error);
+            updateStatus(false);
+        }
+    }
+
+    btnConnect.addEventListener('click', async () => {
+        try {
+            if (deviceSelect.value && navigator.bluetooth.getDevices) {
+                const devices = await navigator.bluetooth.getDevices();
+                const existing = devices.find(d => d.id === deviceSelect.value);
+                if (existing) {
+                    await connectToDevice(existing);
+                    return;
+                }
+            }
+            const options = {
+                filters: [{ services: [SERVICE_UUID] }]
+            };
+            const selected = await navigator.bluetooth.requestDevice(options);
+            await connectToDevice(selected);
+        } catch (e) {
+            console.log(e);
+        }
+    });
+
+    btnDisconnect.addEventListener('click', async () => {
+        if (device && device.gatt.connected) {
+            await device.gatt.disconnect();
+            updateStatus(false);
+        }
+    });
+    
+    btnNew.addEventListener('click', async () => {
+         try {
+            const options = {
+                filters: [{ services: [SERVICE_UUID] }]
+            };
+            const selected = await navigator.bluetooth.requestDevice(options);
+            await connectToDevice(selected);
+        } catch (e) {
+            console.log(e);
+        }
+    });
+
+    function updateStatus(connected) {
+        if (connected) {
+            statusDot.classList.add('connected');
+            statusText.textContent = device ? device.name : "Verbonden";
+            btnConnect.style.display = 'none';
+            btnDisconnect.style.display = 'inline-block';
+            btnNew.style.display = 'none';
+            deviceSelect.style.display = 'none';
+        } else {
+            statusDot.classList.remove('connected');
+            statusText.textContent = "Niet Verbonden";
+            btnConnect.style.display = 'inline-block';
+            btnDisconnect.style.display = 'none';
+            btnNew.style.display = 'block';
+            deviceSelect.style.display = 'block';
+        }
+    }
+
+    async function sendCommand(cmd, params) {
+        if (!characteristic) return;
+        const data = new Uint8Array([cmd, ...params]);
+        try { await characteristic.writeValue(data); } catch (e) { console.error(e); }
+    }
+
+    function setMode(id) { sendCommand(1, [id]); }
+    function setSpeed(v) { 
+        // Map 0-100 to 0-255
+        const speed = Math.round((v / 100) * 255);
+        sendCommand(3, [speed]); 
+    }
+    function setBrightness(v) { sendCommand(4, [parseInt(v)]); }
+    
+    function setStaticMode() {
+        const c = hexToRgb(document.getElementById('staticColor').value);
+        // Set colors (using color1 slot)
+        sendCommand(2, [c.r, c.g, c.b, 0, 0, 0]);
+        // Set mode to Static (15)
+        sendCommand(1, [15]); 
+    }
+
+    let lastBrightnessUi = 255;
+    let lastSpeedUi = 255;
+    const BRIGHTNESS_DEADZONE = 5;
+    const SPEED_DEADZONE = 5;
+
+    function handleNotifications(event) {
+        const value = event.target.value;
+        const cmd = value.getUint8(0);
+        if (cmd === 4) { // CMD_BRIGHTNESS
+            const brightness = value.getUint8(1);
+            const delta = Math.abs(brightness - lastBrightnessUi);
+            if (delta < BRIGHTNESS_DEADZONE) return;
+            document.getElementById('brightnessSlider').value = brightness;
+            document.getElementById('brightnessNum').value = brightness;
+            lastBrightnessUi = brightness;
+        } else if (cmd === 3) { // CMD_SPEED
+            const speed = value.getUint8(1);
+            // Map 0-255 back to 0-100 for display if needed, but we now use 0-100 on slider mapping to 0-255
+            const speedPercent = Math.round((speed / 255) * 100);
+            const delta = Math.abs(speedPercent - lastSpeedUi);
+            if (delta < SPEED_DEADZONE) return;
+            document.getElementById('speedSlider').value = speedPercent;
+            document.getElementById('speedNum').value = speedPercent;
+            lastSpeedUi = speedPercent;
+        }
+    }
+
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
+    }
+
+    function updateColors() {
+        const c1 = hexToRgb(document.getElementById('color1').value);
+        const c2 = hexToRgb(document.getElementById('color2').value);
+        const use3 = document.getElementById('use3').checked;
+        if (use3) {
+            const c3 = hexToRgb(document.getElementById('color3').value);
+            sendCommand(8, [c1.r, c1.g, c1.b, c2.r, c2.g, c2.b, c3.r, c3.g, c3.b]);
+        } else {
+            sendCommand(2, [c1.r, c1.g, c1.b, c2.r, c2.g, c2.b]);
+        }
+    }
+    
+    function setColor2(hex1, hex2) {
+        const c1 = hexToRgb(hex1);
+        const c2 = hexToRgb(hex2);
+        document.getElementById('use3').checked = false;
+        document.getElementById('color1').value = hex1;
+        document.getElementById('color2').value = hex2;
+        sendCommand(2, [c1.r, c1.g, c1.b, c2.r, c2.g, c2.b]);
+    }
+    
+    function setColor3(hex1, hex2, hex3) {
+        const c1 = hexToRgb(hex1);
+        const c2 = hexToRgb(hex2);
+        const c3 = hexToRgb(hex3);
+        document.getElementById('use3').checked = true;
+        document.getElementById('color1').value = hex1;
+        document.getElementById('color2').value = hex2;
+        document.getElementById('color3').value = hex3;
+        sendCommand(8, [c1.r, c1.g, c1.b, c2.r, c2.g, c2.b, c3.r, c3.g, c3.b]);
+    }
+    
+    function updateNum(type, val) {
+        document.getElementById(type + 'Num').value = val;
+    }
+    
+    function updateSlider(type, val) {
+        document.getElementById(type + 'Slider').value = val;
+        if (type === 'speed') setSpeed(val);
+        if (type === 'brightness') setBrightness(val);
+    }
+    
+    function setPotMode(mode) {
+        // 0 = Brightness, 1 = Speed
+        sendCommand(7, [mode]);
+    }
+</script>
+
+</body>
+</html>
