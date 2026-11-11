@@ -134,6 +134,7 @@
         .btn.tilburg::before { background: linear-gradient(to bottom, #ffa500, #00ff00); }
         .btn.limburg::before { background: linear-gradient(to bottom, #ff0000, #ffff00, #008000); }
         .btn.brabant::before { background: linear-gradient(to bottom, #ff0000, #ffffff); }
+        .btn.breda::before { background: linear-gradient(to bottom, #ff6600, #ff0000); }
         .btn.rainbow::before { background: linear-gradient(to bottom, red, orange, yellow, green, blue, purple); }
         .btn.effect::before { background: var(--accent); }
 
@@ -173,6 +174,28 @@
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none; width: 18px; height: 18px;
             border-radius: 50%; background: var(--accent); cursor: pointer;
+        }
+
+        input[type=range]:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        input[type=range]:disabled::-webkit-slider-thumb {
+            background: #777;
+            cursor: not-allowed;
+        }
+        input[type=number]:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .slider-group.locked label {
+            opacity: 0.8;
+        }
+        .slider-group.locked label::after {
+            content: ' 🔒 (Potentiometer)';
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: normal;
         }
 
         .color-row { display: flex; gap: 10px; margin-top: 10px; }
@@ -220,11 +243,13 @@
         <button class="btn brabant" onclick="setMode(9)">Brabant ❤️🤍</button>
         <button class="btn tilburg" onclick="setMode(4)">Tilburg 🧡💚</button>
         <button class="btn limburg" onclick="setMode(8)">Limburg 🦁</button>
+        <button class="btn breda" onclick="setBreda()">Breda 🧡❤️</button>
     </div>
 
     <div class="section-title">Kleur Combinaties</div>
     <div class="grid">
         <button class="btn effect" onclick="setMode(10)">Standaard Custom</button>
+        <button class="btn breda" onclick="setColor2('#ff6600','#ff0000')">Breda Oranje/Rood</button>
         <button class="btn effect" onclick="setColor2('#ff2d95','#00b7ff')">Neon Roze/Blauw</button>
         <button class="btn effect" onclick="setColor2('#00ffd5','#7b00ff')">Aqua/Paars</button>
         <button class="btn effect" onclick="setColor2('#ff7a00','#7c00ff')">Oranje/Paars</button>
@@ -239,7 +264,7 @@
         <button class="btn carnival" onclick="setColor3('#e10600','#ffffff','#f8d000')">Oeteldonk</button>
         <button class="btn carnival" onclick="setColor3('#ff8a00','#00a651','#ffffff')">Kruikenstad</button>
         <button class="btn carnival" onclick="setColor3('#ff0000','#ffffff','#f8d000')">Lampegat</button>
-        <button class="btn carnival" onclick="setColor3('#ff0000','#ffcc00','#000000')">Kielegat</button>
+        <button class="btn breda" onclick="setBreda()">Kielegat 🧡❤️</button>
     </div>
 
     <div class="section-title">Effecten (Gebruikt Kleuren)</div>
@@ -263,7 +288,7 @@
             </button>
         </div>
 
-        <div class="slider-group">
+        <div class="slider-group" id="speedGroup">
             <div style="display: flex; justify-content: space-between;">
                 <label>Snelheid Effecten</label>
                 <input type="number" id="speedNum" min="0" max="100" value="50" style="width: 50px; background: #333; color: white; border: none; border-radius: 4px; padding: 2px 5px;" onchange="updateSlider('speed', this.value)">
@@ -285,7 +310,7 @@
             </div>
         </div>
 
-        <div class="slider-group">
+        <div class="slider-group" id="brightnessGroup">
             <div style="display: flex; justify-content: space-between;">
                 <label>Helderheid</label>
                 <input type="number" id="brightnessNum" min="0" max="255" value="128" style="width: 50px; background: #333; color: white; border: none; border-radius: 4px; padding: 2px 5px;" onchange="updateSlider('brightness', this.value)">
@@ -325,8 +350,10 @@
 
     let deviceHistory = JSON.parse(localStorage.getItem('ble_devices') || '[]');
     updateDeviceDropdown();
+    applyPotLock(0);
 
     window.addEventListener('load', () => {
+        applyPotLock(0);
         initDevices();
     });
 
@@ -470,13 +497,28 @@
 
     let lastBrightnessUi = 255;
     let lastSpeedUi = 255;
-    const BRIGHTNESS_DEADZONE = 5;
-    const SPEED_DEADZONE = 5;
+    const BRIGHTNESS_DEADZONE = 15;
+    const SPEED_DEADZONE = 10;
+    let isDraggingBrightness = false;
+    let isDraggingSpeed = false;
+
+    const bSlider = document.getElementById('brightnessSlider');
+    if (bSlider) {
+        bSlider.addEventListener('pointerdown', () => { isDraggingBrightness = true; });
+        window.addEventListener('pointerup', () => { isDraggingBrightness = false; });
+    }
+
+    const sSlider = document.getElementById('speedSlider');
+    if (sSlider) {
+        sSlider.addEventListener('pointerdown', () => { isDraggingSpeed = true; });
+        window.addEventListener('pointerup', () => { isDraggingSpeed = false; });
+    }
 
     function handleNotifications(event) {
         const value = event.target.value;
         const cmd = value.getUint8(0);
         if (cmd === 4) { // CMD_BRIGHTNESS
+            if (isDraggingBrightness) return;
             const brightness = value.getUint8(1);
             const delta = Math.abs(brightness - lastBrightnessUi);
             if (delta < BRIGHTNESS_DEADZONE) return;
@@ -484,6 +526,7 @@
             document.getElementById('brightnessNum').value = brightness;
             lastBrightnessUi = brightness;
         } else if (cmd === 3) { // CMD_SPEED
+            if (isDraggingSpeed) return;
             const speed = value.getUint8(1);
             // Map 0-255 back to 0-100 for display if needed, but we now use 0-100 on slider mapping to 0-255
             const speedPercent = Math.round((speed / 255) * 100);
@@ -531,12 +574,55 @@
         document.getElementById('color3').value = hex3;
         sendCommand(8, [c1.r, c1.g, c1.b, c2.r, c2.g, c2.b, c3.r, c3.g, c3.b]);
     }
+
+    function setBreda() {
+        setColor2('#ff6600', '#ff0000');
+        sendCommand(1, [16]); // MODE_BREDA
+    }
     
+    let currentPotMode = 0;
+
+    function applyPotLock(mode) {
+        currentPotMode = parseInt(mode);
+        const bSlider = document.getElementById('brightnessSlider');
+        const bNum = document.getElementById('brightnessNum');
+        const bGroup = document.getElementById('brightnessGroup');
+        const sSlider = document.getElementById('speedSlider');
+        const sNum = document.getElementById('speedNum');
+        const sGroup = document.getElementById('speedGroup');
+
+        if (currentPotMode === 0) {
+            // Lock brightness (controlled by hardware potentiometer)
+            if (bSlider) bSlider.disabled = true;
+            if (bNum) bNum.disabled = true;
+            if (bGroup) bGroup.classList.add('locked');
+
+            // Unlock speed
+            if (sSlider) sSlider.disabled = false;
+            if (sNum) sNum.disabled = false;
+            if (sGroup) sGroup.classList.remove('locked');
+        } else {
+            // Lock speed (controlled by hardware potentiometer)
+            if (sSlider) sSlider.disabled = true;
+            if (sNum) sNum.disabled = true;
+            if (sGroup) sGroup.classList.add('locked');
+
+            // Unlock brightness
+            if (bSlider) bSlider.disabled = false;
+            if (bNum) bNum.disabled = false;
+            if (bGroup) bGroup.classList.remove('locked');
+        }
+    }
+
     function updateNum(type, val) {
+        if (type === 'brightness' && currentPotMode === 0) return;
+        if (type === 'speed' && currentPotMode === 1) return;
         document.getElementById(type + 'Num').value = val;
     }
     
     function updateSlider(type, val) {
+        if (type === 'brightness' && currentPotMode === 0) return;
+        if (type === 'speed' && currentPotMode === 1) return;
         document.getElementById(type + 'Slider').value = val;
         if (type === 'speed') setSpeed(val);
         if (type === 'brightness') setBrightness(val);
@@ -544,7 +630,8 @@
     
     function setPotMode(mode) {
         // 0 = Brightness, 1 = Speed
-        sendCommand(7, [mode]);
+        applyPotLock(mode);
+        sendCommand(7, [parseInt(mode)]);
     }
 </script>
 
