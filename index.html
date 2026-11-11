@@ -134,7 +134,7 @@
         .btn.tilburg::before { background: linear-gradient(to bottom, #ffa500, #00ff00); }
         .btn.limburg::before { background: linear-gradient(to bottom, #ff0000, #ffff00, #008000); }
         .btn.brabant::before { background: linear-gradient(to bottom, #ff0000, #ffffff); }
-        .btn.breda::before { background: linear-gradient(to bottom, #ff6600, #ff0000); }
+        .btn.kielegat::before { background: linear-gradient(to bottom, #ff8a00, #ff0000); }
         .btn.rainbow::before { background: linear-gradient(to bottom, red, orange, yellow, green, blue, purple); }
         .btn.effect::before { background: var(--accent); }
 
@@ -243,13 +243,13 @@
         <button class="btn brabant" onclick="setMode(9)">Brabant ❤️🤍</button>
         <button class="btn tilburg" onclick="setMode(4)">Tilburg 🧡💚</button>
         <button class="btn limburg" onclick="setMode(8)">Limburg 🦁</button>
-        <button class="btn breda" onclick="setBreda()">Breda 🧡❤️</button>
+        <button class="btn kielegat" onclick="setKielegat()">Kielegat 🧡❤️</button>
     </div>
 
     <div class="section-title">Kleur Combinaties</div>
     <div class="grid">
         <button class="btn effect" onclick="setMode(10)">Standaard Custom</button>
-        <button class="btn breda" onclick="setColor2('#ff6600','#ff0000')">Breda Oranje/Rood</button>
+        <button class="btn kielegat" onclick="setColor2('#ff8a00','#ff0000')">Kielegat Oranje/Rood</button>
         <button class="btn effect" onclick="setColor2('#ff2d95','#00b7ff')">Neon Roze/Blauw</button>
         <button class="btn effect" onclick="setColor2('#00ffd5','#7b00ff')">Aqua/Paars</button>
         <button class="btn effect" onclick="setColor2('#ff7a00','#7c00ff')">Oranje/Paars</button>
@@ -264,7 +264,7 @@
         <button class="btn carnival" onclick="setColor3('#e10600','#ffffff','#f8d000')">Oeteldonk</button>
         <button class="btn carnival" onclick="setColor3('#ff8a00','#00a651','#ffffff')">Kruikenstad</button>
         <button class="btn carnival" onclick="setColor3('#ff0000','#ffffff','#f8d000')">Lampegat</button>
-        <button class="btn breda" onclick="setBreda()">Kielegat 🧡❤️</button>
+        <button class="btn kielegat" onclick="setKielegat()">Kielegat 🧡❤️</button>
     </div>
 
     <div class="section-title">Effecten (Gebruikt Kleuren)</div>
@@ -575,10 +575,11 @@
         sendCommand(8, [c1.r, c1.g, c1.b, c2.r, c2.g, c2.b, c3.r, c3.g, c3.b]);
     }
 
-    function setBreda() {
-        setColor2('#ff6600', '#ff0000');
-        sendCommand(1, [16]); // MODE_BREDA
+    function setKielegat() {
+        setColor2('#ff8a00', '#ff0000');
+        sendCommand(1, [16]); // MODE_KIELEGAT / MODE_BREDA
     }
+    function setBreda() { setKielegat(); }
     
     let currentPotMode = 0;
 
