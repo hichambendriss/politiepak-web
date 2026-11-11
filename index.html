@@ -232,10 +232,12 @@
         .btn.police::before { background: linear-gradient(to bottom, #ff0000, #0000ff); }
         .btn.party::before { background: linear-gradient(to bottom, #ff00ff, #00ffff); }
         .btn.carnival::before { background: linear-gradient(to bottom, #ff0000, #ffff00, #00ff00); }
-        .btn.tilburg::before { background: linear-gradient(to bottom, #ff5a00, #00ff00); }
+        .btn.tilburg::before { background: linear-gradient(to bottom, #ff3500, #00b000); }
         .btn.limburg::before { background: linear-gradient(to bottom, #ff0000, #ffff00, #008000); }
         .btn.brabant::before { background: linear-gradient(to bottom, #ff0000, #ffffff); }
-        .btn.kielegat::before { background: linear-gradient(to bottom, #ff5a00, #ff0000); }
+        .btn.kielegat::before { background: linear-gradient(to bottom, #ff3500, #ff0000); }
+        .btn.lampegat::before { background: linear-gradient(to bottom, #ff3500, #0044ff); }
+        .btn.oeteldonk::before { background: linear-gradient(to bottom, #e10600, #ffffff, #f8d000); }
         .btn.rainbow::before { background: linear-gradient(to bottom, red, orange, yellow, green, blue, purple); }
         .btn.effect::before { background: var(--accent); }
 
@@ -581,28 +583,26 @@
 
         <div class="section-title">Regio's</div>
         <div class="grid">
-            <button class="btn carnival" onclick="setMode(3)">Carnaval 🎭</button>
             <button class="btn brabant" onclick="setMode(9)">Brabant ❤️🤍</button>
-            <button class="btn tilburg" onclick="setMode(4)">Tilburg 🧡💚</button>
             <button class="btn limburg" onclick="setMode(8)">Limburg 🦁</button>
-            <button class="btn kielegat" onclick="setKielegat()">Kielegat 🧡❤️</button>
+            <button class="btn carnival" onclick="setMode(3)">Carnaval Klassiek 🎭</button>
         </div>
 
         <div class="section-title">Carnaval Steden</div>
         <div class="grid">
-            <button class="btn carnival" onclick="setColor3('#e10600','#ffffff','#f8d000')">Oeteldonk</button>
-            <button class="btn carnival" onclick="setColor3('#ff5a00','#00a651','#ffffff')">Kruikenstad</button>
-            <button class="btn carnival" onclick="setColor3('#ff0000','#ffffff','#f8d000')">Lampegat</button>
+            <button class="btn tilburg" onclick="setKruikenstad()">Kruikenstad 🧡💚</button>
             <button class="btn kielegat" onclick="setKielegat()">Kielegat 🧡❤️</button>
+            <button class="btn oeteldonk" onclick="setOeteldonk()">Oeteldonk ❤️🤍💛</button>
+            <button class="btn lampegat" onclick="setLampegat()">Lampegat 🧡💙</button>
         </div>
 
         <div class="section-title">Kleur Combinaties</div>
         <div class="grid">
             <button class="btn effect" onclick="setMode(10)">Standaard Custom</button>
-            <button class="btn kielegat" onclick="setColor2('#ff5a00','#ff0000')">Kielegat Oranje/Rood</button>
+            <button class="btn effect" onclick="setColor2('#ff3500','#ffea00')">Vuur Oranje/Geel 🔥</button>
             <button class="btn effect" onclick="setColor2('#ff2d95','#00b7ff')">Neon Roze/Blauw</button>
             <button class="btn effect" onclick="setColor2('#00ffd5','#7b00ff')">Aqua/Paars</button>
-            <button class="btn effect" onclick="setColor2('#ff7a00','#7c00ff')">Oranje/Paars</button>
+            <button class="btn effect" onclick="setColor2('#ff3500','#7c00ff')">Oranje/Paars</button>
             <button class="btn effect" onclick="setColor2('#a4ff00','#0066ff')">Lime/Blauw</button>
             <button class="btn effect" onclick="setColor2('#ffffff','#007bff')">Wit/Blauw</button>
             <button class="btn effect" onclick="setColor2('#ff0000','#00ffff')">Rood/Cyaan</button>
@@ -1080,9 +1080,23 @@
         sendCommand(8, [c1.r, c1.g, c1.b, c2.r, c2.g, c2.b, c3.r, c3.g, c3.b]);
     }
 
+    function setKruikenstad() {
+        setColor2('#ff3500', '#00b000');
+        sendCommand(1, [4]); // MODE_TILBURG
+    }
+    function setTilburg() { setKruikenstad(); }
+
     function setKielegat() {
-        setColor2('#ff5a00', '#ff0000');
+        setColor2('#ff3500', '#ff0000');
         sendCommand(1, [16]); // MODE_KIELEGAT
+    }
+
+    function setOeteldonk() {
+        setColor3('#e10600', '#ffffff', '#f8d000');
+    }
+
+    function setLampegat() {
+        setColor2('#ff3500', '#0044ff');
     }
 
     function saveStartupDefaults() {
